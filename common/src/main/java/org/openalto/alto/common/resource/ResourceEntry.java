@@ -19,6 +19,8 @@ public class ResourceEntry {
 
     private List<URI> m_dependencies;
 
+    private boolean m_isDefault = false;
+
     public ResourceEntry setResourceID(String rid) {
         m_rid = rid;
         return this;
@@ -49,5 +51,14 @@ public class ResourceEntry {
 
     public Map<String, ResourceCapability> getCapabilities() {
         return m_capabilities;
+    }
+
+    public ResourceEntry setDefault(boolean isDefault) {
+        m_isDefault = isDefault;
+        return this;
+    }
+
+    public boolean isDefault() {
+        return m_isDefault;
     }
 }
