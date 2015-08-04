@@ -5,7 +5,9 @@ import javax.ws.rs.core.Response;
 public abstract class ALTOResponseParser {
 
     protected boolean success(Response.StatusType status) {
-        return Response.Status.Family.SUCCESSFUL.equals(status);
+        if (status == null)
+            return false;
+        return Response.Status.Family.SUCCESSFUL.equals(status.getFamily());
     }
 
     public abstract ALTOResponse parse(Response response);
