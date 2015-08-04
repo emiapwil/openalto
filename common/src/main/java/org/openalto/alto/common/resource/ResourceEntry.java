@@ -21,6 +21,27 @@ public class ResourceEntry {
 
     private boolean m_isDefault = false;
 
+    public ResourceEntry(URI uri, ResourceType type) {
+        m_uri = uri;
+        m_type = type;
+    }
+
+    public ResourceEntry(URI uri, String type) {
+        m_uri = uri;
+        m_type = new ResourceType(type);
+    }
+
+    public ResourceEntry(String uri, String type) throws URISyntaxException {
+        m_uri = new URI(uri);
+        m_type = new ResourceType(type);
+    }
+
+    public ResourceEntry(String uri, ResourceType type)
+                                    throws URISyntaxException {
+        m_uri = new URI(uri);
+        m_type = type;
+    }
+
     public ResourceEntry setResourceID(String rid) {
         m_rid = rid;
         return this;
@@ -42,6 +63,20 @@ public class ResourceEntry {
 
     public URI getURI() {
         return m_uri;
+    }
+
+    public ResourceEntry setType(ResourceType type) {
+        m_type = type;
+        return this;
+    }
+
+    public ResourceEntry setType(String type) {
+        m_type = new ResourceType(type);
+        return this;
+    }
+
+    public ResourceType getType() {
+        return m_type;
     }
 
     public ResourceEntry setCapabilities(Map<String, ResourceCapability> cap) {

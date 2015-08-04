@@ -34,20 +34,17 @@ public class ALTOMediaType extends MediaType {
     public static final MediaType
     COST_MAP_FILTER_TYPE = new ALTOMediaType("costmapfilter");
 
-
     public static final String
     ENDPOINT_PROP = "application/alto-endpointprop+json";
 
     public static final MediaType
     ENDPOINT_PROP_TYPE = new ALTOMediaType("endpointprop");
 
-
     public static final String
     ENDPOINT_PROP_PARAMS = "application/alto-endpointpropparams+json";
 
     public static final MediaType
     ENDPOINT_PROP_PARAMS_TYPE = new ALTOMediaType("endpointpropparams");
-
 
     public static final String
     ENDPOINT_COST = "application/alto-endpointcost+json";
