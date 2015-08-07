@@ -58,6 +58,9 @@ public abstract class ALTORequestBuilder {
     public abstract ALTORequest request(ResourceEntry resource, Object params);
 
     protected ALTORequest _request(ResourceEntry resource, Object params, Entity<?> entity) {
+        if (!canRequest(resource))
+            return null;
+
         ResourceType type = resource.getType();
         MediaType contentType = this.getResourceTypeMapper()
                                     .getContentType(type);
@@ -71,6 +74,8 @@ public abstract class ALTORequestBuilder {
                                     .setInvocation(invocation);
         return request;
     }
+
+    public abstract boolean canRequest(ResourceEntry entry);
 
     protected static class ALTORequestBase implements ALTORequest {
 

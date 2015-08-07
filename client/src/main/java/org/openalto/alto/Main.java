@@ -9,6 +9,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -19,9 +20,14 @@ import java.util.Set;
 import org.openalto.alto.common.resource.ResourceEntry;
 import org.openalto.alto.common.resource.ResourceType;
 import org.openalto.alto.common.type.ALTOData;
+import org.openalto.alto.common.type.MetaData;
+import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
+import org.openalto.alto.common.encoder.basic.InetAddressFixer;
+import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParam;
+import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParamEncoder;
 
 import org.openalto.alto.client.ALTORequest;
 import org.openalto.alto.client.ALTORequestBuilder;
@@ -33,6 +39,8 @@ import org.openalto.alto.client.wrapper.IRDRequestBuilder;
 import org.openalto.alto.client.wrapper.IRDResponseParser;
 import org.openalto.alto.client.wrapper.NetworkMapRequestBuilder;
 import org.openalto.alto.client.wrapper.NetworkMapResponseParser;
+import org.openalto.alto.client.wrapper.ECSRequestBuilder;
+
 
 /**
  * Main class.
@@ -68,9 +76,10 @@ public class Main {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) throws Exception {
         testIRD();
         testNM();
+        testECS();
     }
 
     public static void testIRD() throws IOException, URISyntaxException {
@@ -125,15 +134,8 @@ public class Main {
         ALTORequest request = arb.request(resource, null);
         ALTOResponse response = request.invoke();
 
-        if (response == null) {
-            System.out.println("Something wrong with the connection");
+        if (!isValidesponse(response))
             return;
-        }
-        if (response.isError()) {
-            String msg = response.get().toString();
-            System.out.println(msg);
-            return;
-        }
 
         ALTOData<?, DefaultNetworkMap> nm = (ALTOData<?, DefaultNetworkMap>)response.get();
         Map<String, Set<EndpointAddress<?>>> nodes = nm.getData().getNodes();
@@ -148,6 +150,63 @@ public class Main {
             }
             System.out.println("------------------");
         }
+    }
+
+    public static void testECS() throws Exception {
+        URI uri = new URI("http://localhost:3400/alto/test_ecslite");
+        ResourceType resourceType = ResourceType.ENDPOINT_COST_SERVICE_TYPE;
+
+        ResourceEntry resource = new ResourceEntry(uri, resourceType);
+
+        Client client = ClientBuilder.newClient();
+
+        ALTOResponseParser arp = new RawParser();
+        DefaultEndpointCostParamEncoder encoder = new DefaultEndpointCostParamEncoder();
+        ALTORequestBuilder arb = new ECSRequestBuilder(client, arp, encoder);
+
+        CostType type = new CostType("numerical", "routingcost");
+        DefaultEndpointCostParam param = new DefaultEndpointCostParam(type);
+
+        InetAddressFixer srcs[] = {
+            new InetAddressFixer(InetAddress.getByName("192.0.2.2"))
+        };
+
+        InetAddressFixer dsts[] = {
+            new InetAddressFixer(InetAddress.getByName("192.0.2.89")),
+            new InetAddressFixer(InetAddress.getByName("198.51.100.34")),
+            new InetAddressFixer(InetAddress.getByName("203.0.113.45"))
+        };
+
+        for (InetAddressFixer addr: srcs) {
+            param.addSource(new EndpointAddress<InetAddressFixer>("ipv4", addr));
+        }
+
+        for (InetAddressFixer addr: dsts) {
+            param.addDestination(new EndpointAddress<InetAddressFixer>("ipv4", addr));
+        }
+
+        ALTORequest request = arb.request(resource, param);
+        ALTOResponse response = request.invoke();
+
+        if (!isValidesponse(response))
+            return;
+
+        ALTOData<MetaData, String> data;
+        data = (ALTOData<MetaData, String>)response.get();
+        System.out.println(data.getData());
+   }
+
+   public static boolean isValidesponse(ALTOResponse response) {
+        if (response == null) {
+            System.out.println("Something wrong with the connection");
+            return false;
+        }
+        if (response.isError()) {
+            String msg = response.get().toString();
+            System.out.println(msg);
+            return false;
+        }
+        return true;
     }
 }
 
