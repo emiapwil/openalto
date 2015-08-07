@@ -14,14 +14,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.openalto.alto.common.type.ALTOData;
-import org.openalto.alto.common.type.ALTOMetaData;
+import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.type.EndpointAddress;
 
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
 public class DefaultNetworkMapDecoder
-        extends ALTOChainDecoder<ALTOData<ALTOMetaData, DefaultNetworkMap>> {
+        extends ALTOChainDecoder<ALTOData<MetaData, DefaultNetworkMap>> {
 
     public DefaultNetworkMapDecoder() {
         this.add("ipv4", new InetSubnetDecoder("ipv4", 32, Inet4Address.class));
@@ -29,7 +29,7 @@ public class DefaultNetworkMapDecoder
     }
 
     @Override
-    public ALTOData<ALTOMetaData, DefaultNetworkMap> decode(String text) {
+    public ALTOData<MetaData, DefaultNetworkMap> decode(String text) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode node = mapper.readTree(text);
@@ -40,11 +40,11 @@ public class DefaultNetworkMapDecoder
     }
 
     @Override
-    public ALTOData<ALTOMetaData, DefaultNetworkMap> decode(JsonNode node) {
+    public ALTOData<MetaData, DefaultNetworkMap> decode(JsonNode node) {
         try {
             DefaultNetworkMap map = this.decodeMap(node.get("network-map"));
             if (map != null) {
-                return new ALTOData<ALTOMetaData, DefaultNetworkMap>(null, map);
+                return new ALTOData<MetaData, DefaultNetworkMap>(null, map);
             }
         } catch (Exception e) {
         }

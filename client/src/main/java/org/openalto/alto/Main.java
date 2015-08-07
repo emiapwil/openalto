@@ -13,15 +13,26 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.openalto.alto.common.resource.ResourceEntry;
 import org.openalto.alto.common.resource.ResourceType;
+import org.openalto.alto.common.type.ALTOData;
+import org.openalto.alto.common.type.EndpointAddress;
+import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
+import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
+
 import org.openalto.alto.client.ALTORequest;
 import org.openalto.alto.client.ALTORequestBuilder;
 import org.openalto.alto.client.ALTOResponse;
 import org.openalto.alto.client.ALTOResponseParser;
-import org.openalto.alto.client.wrapper.ird.IRDRequestBuilder;
-import org.openalto.alto.client.wrapper.ird.IRDResponseParser;
+
+import org.openalto.alto.client.wrapper.RawParser;
+import org.openalto.alto.client.wrapper.IRDRequestBuilder;
+import org.openalto.alto.client.wrapper.IRDResponseParser;
+import org.openalto.alto.client.wrapper.NetworkMapRequestBuilder;
+import org.openalto.alto.client.wrapper.NetworkMapResponseParser;
 
 /**
  * Main class.
@@ -58,6 +69,11 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException, URISyntaxException {
+        testIRD();
+        testNM();
+    }
+
+    public static void testIRD() throws IOException, URISyntaxException {
         URI uri = new URI("http://localhost:3400/alto/");
         ResourceType type = ResourceType.DIRECTORY_TYPE;
 
@@ -70,6 +86,7 @@ public class Main {
 
         ALTORequest request = arb.request(resource, null);
         ALTOResponse response = request.invoke();
+
         if (response == null) {
             System.out.println("Something wrong with the connection");
             return;
@@ -79,6 +96,7 @@ public class Main {
             System.out.println(msg);
             return;
         }
+
         List<ResourceEntry> resourceList = (List<ResourceEntry>)response.get();
         if (resourceList == null) {
             System.out.println("Empty ALTO IRD");
@@ -90,6 +108,45 @@ public class Main {
             System.out.println("URI:          " + re.getURI());
             System.out.println("ResourceType: " + re.getType());
             System.out.println("-------------------");
+        }
+    }
+
+    public static void testNM() throws IOException, URISyntaxException {
+        URI uri = new URI("http://localhost:3400/alto/test_sf_networkmap");
+        ResourceType type = ResourceType.NETWORK_MAP_TYPE;
+
+        ResourceEntry resource = new ResourceEntry(uri, type);
+
+        Client client = ClientBuilder.newClient();
+
+        ALTOResponseParser arp = new NetworkMapResponseParser();
+        ALTORequestBuilder arb = new NetworkMapRequestBuilder(client, arp);
+
+        ALTORequest request = arb.request(resource, null);
+        ALTOResponse response = request.invoke();
+
+        if (response == null) {
+            System.out.println("Something wrong with the connection");
+            return;
+        }
+        if (response.isError()) {
+            String msg = response.get().toString();
+            System.out.println(msg);
+            return;
+        }
+
+        ALTOData<?, DefaultNetworkMap> nm = (ALTOData<?, DefaultNetworkMap>)response.get();
+        Map<String, Set<EndpointAddress<?>>> nodes = nm.getData().getNodes();
+        for (Map.Entry<String, Set<EndpointAddress<?>>> entry: nodes.entrySet()) {
+            String pid = entry.getKey();
+            Set<EndpointAddress<?>> addrSet = entry.getValue();
+
+            System.out.println("------------------");
+            System.out.println(pid);
+            for (EndpointAddress<?> addr: addrSet) {
+                System.out.println("\t" + addr.getFamily() + ": " + addr.getAddr().toString());
+            }
+            System.out.println("------------------");
         }
     }
 }

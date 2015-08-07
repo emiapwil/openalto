@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.openalto.alto.common.type.ALTOData;
-import org.openalto.alto.common.type.ALTOMetaData;
+import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.type.EndpointAddress;
 
 public class NetworkMapDecoderTest {
@@ -53,7 +53,7 @@ public class NetworkMapDecoderTest {
         };
 
         DefaultNetworkMapDecoder decoder = new DefaultNetworkMapDecoder();
-        ALTOData<ALTOMetaData, DefaultNetworkMap> data = decoder.decode(map.toString());
+        ALTOData<MetaData, DefaultNetworkMap> data = decoder.decode(map.toString());
         assertNotNull(data);
         DefaultNetworkMap nm = data.getData();
         assertNotNull(nm);

@@ -40,4 +40,9 @@ public class InetPrefix {
         Object[] rhs = { new Integer(that.getPrefixLength()), that.getAddress() };
         return Arrays.deepEquals(lhs, rhs);
     }
+
+    @Override
+    public String toString() {
+        return getAddress().getHostAddress() + "/" + getPrefixLength();
+    }
 }

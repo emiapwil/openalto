@@ -1,4 +1,4 @@
-package org.openalto.alto.client;
+package org.openalto.alto.client.wrapper;
 
 import javax.ws.rs.core.Response;
 

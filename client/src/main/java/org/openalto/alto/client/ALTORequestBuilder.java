@@ -1,16 +1,30 @@
 package org.openalto.alto.client;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
+
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static org.openalto.alto.client.ALTOResponseParser.ALTOResponseBase;
+import org.openalto.alto.common.resource.ResourceMethodMapper;
+import org.openalto.alto.common.resource.ResourceTypeMapper;
 import org.openalto.alto.common.resource.ResourceEntry;
+import org.openalto.alto.common.resource.ResourceType;
+import org.openalto.alto.common.resource.ResourceTypeMapper;
+import org.openalto.alto.common.resource.ResourceMethodMapper;
 
 public abstract class ALTORequestBuilder {
 
     protected Client m_client;
     protected ALTOResponseParser m_parser;
+
+    protected ResourceTypeMapper
+    m_typeMapper = ResourceTypeMapper.getRFC7285Mapper();
+
+    protected ResourceMethodMapper
+    m_methodMapper = ResourceMethodMapper.getRFC7285Mapper();
 
     public ALTORequestBuilder(Client client, ALTOResponseParser parser) {
         m_client = client;
@@ -25,7 +39,38 @@ public abstract class ALTORequestBuilder {
         return m_parser;
     }
 
+    public void setResourceTypeMapper(ResourceTypeMapper mapper) {
+        m_typeMapper = mapper;
+    }
+
+    public ResourceTypeMapper getResourceTypeMapper() {
+        return m_typeMapper;
+    }
+
+    public void setResourceMethodMapper(ResourceMethodMapper mapper) {
+        m_methodMapper = mapper;
+    }
+
+    public ResourceMethodMapper getResourceMethodMapper() {
+        return m_methodMapper;
+    }
+
     public abstract ALTORequest request(ResourceEntry resource, Object params);
+
+    protected ALTORequest _request(ResourceEntry resource, Object params, Entity<?> entity) {
+        ResourceType type = resource.getType();
+        MediaType contentType = this.getResourceTypeMapper()
+                                    .getContentType(type);
+        String method = this.getResourceMethodMapper().get(type);
+
+        Invocation invocation = this.getClient()
+                                    .target(resource.getURI())
+                                    .request(contentType)
+                                    .build(method, entity);
+        ALTORequest request = new ALTORequestBase(resource, params, getParser())
+                                    .setInvocation(invocation);
+        return request;
+    }
 
     protected static class ALTORequestBase implements ALTORequest {
 

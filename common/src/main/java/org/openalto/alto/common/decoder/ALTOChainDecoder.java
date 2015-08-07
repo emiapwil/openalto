@@ -1,5 +1,6 @@
 package org.openalto.alto.common.decoder;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -14,8 +15,12 @@ public abstract class ALTOChainDecoder<T> implements ALTODecoder<T> {
         return this;
     }
 
-    public ALTODecoder<? extends Object> get(String field) {
+    public ALTODecoder<?> get(String field) {
         return m_subDecoder.get(field);
+    }
+
+    public Collection<ALTODecoder<?>> getAll() {
+        return m_subDecoder.values();
     }
 
     public ALTOChainDecoder remove(String field) {

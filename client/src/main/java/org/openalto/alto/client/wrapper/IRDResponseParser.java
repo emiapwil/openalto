@@ -1,4 +1,4 @@
-package org.openalto.alto.client.wrapper.ird;
+package org.openalto.alto.client.wrapper;
 
 import java.io.IOException;
 
