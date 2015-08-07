@@ -38,4 +38,9 @@ public class EndpointAddress<T> {
         Object[] rhs = { that.getFamily(), that.getAddr() };
         return Arrays.deepEquals(lhs, rhs);
     }
+
+    @Override
+    public String toString() {
+        return getFamily() + ":" + getAddr().toString();
+    }
 }
