@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
 
 import org.openalto.alto.common.resource.ResourceEntry;
 import org.openalto.alto.common.resource.ResourceType;
@@ -27,9 +28,12 @@ import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResult;
 import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResultDecoder;
+import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.encoder.basic.InetAddressFixer;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParam;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParamEncoder;
+import org.openalto.alto.common.encoder.basic.DefaultNetworkMapFilter;
+import org.openalto.alto.common.encoder.basic.DefaultNetworkMapFilterEncoder;
 
 import org.openalto.alto.client.ALTORequest;
 import org.openalto.alto.client.ALTORequestBuilder;
@@ -43,6 +47,7 @@ import org.openalto.alto.client.wrapper.NetworkMapRequestBuilder;
 import org.openalto.alto.client.wrapper.NetworkMapResponseParser;
 import org.openalto.alto.client.wrapper.EndpointCostResponseParser;
 import org.openalto.alto.client.wrapper.ECSRequestBuilder;
+import org.openalto.alto.client.wrapper.FilteredNetworkMapRequestBuilder;
 
 
 /**
@@ -80,9 +85,29 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws Exception {
-        testIRD();
-        testNM();
-        testECS();
+        System.out.println("Test IRD:");
+        try {
+            testIRD();
+        } catch (Exception e) {
+        }
+
+        System.out.println("Test Network Map:");
+        try {
+            testNM();
+        } catch (Exception e) {
+        }
+
+        System.out.println("Test Filtered Network Map:");
+        try {
+            testFNM();
+        } catch (Exception e) {
+        }
+
+        System.out.println("Test Endpoint Cost Service:");
+        try {
+            testECS();
+        } catch (Exception e) {
+        }
     }
 
     public static void testIRD() throws IOException, URISyntaxException {
@@ -154,6 +179,48 @@ public class Main {
             System.out.println("------------------");
         }
     }
+
+    public static void testFNM() throws IOException, URISyntaxException {
+        URI uri = new URI("http://localhost:3400/alto/test_fnmlite");
+        ResourceType type = ResourceType.FILTERED_NETWORK_MAP_TYPE;
+
+        ResourceEntry resource = new ResourceEntry(uri, type);
+
+        Client client = ClientBuilder.newClient();
+
+        ALTOEncoder encoder = new DefaultNetworkMapFilterEncoder();
+        ALTOResponseParser arp = new NetworkMapResponseParser();
+        ALTORequestBuilder arb = new FilteredNetworkMapRequestBuilder(client, arp, encoder);
+
+        Set<String> pids = new HashSet<String>();
+        pids.add("PID1");
+        pids.add("PID3");
+
+        Set<String> addrTypes = new HashSet<String>();
+        addrTypes.add("ipv4");
+
+        DefaultNetworkMapFilter filter = new DefaultNetworkMapFilter(pids, addrTypes);
+        ALTORequest request = arb.request(resource, filter);
+        ALTOResponse response = request.invoke();
+
+        if (!isValidesponse(response))
+            return;
+
+        ALTOData<?, DefaultNetworkMap> nm = (ALTOData<?, DefaultNetworkMap>)response.get();
+        Map<String, Set<EndpointAddress<?>>> nodes = nm.getData().getNodes();
+        for (Map.Entry<String, Set<EndpointAddress<?>>> entry: nodes.entrySet()) {
+            String pid = entry.getKey();
+            Set<EndpointAddress<?>> addrSet = entry.getValue();
+
+            System.out.println("------------------");
+            System.out.println(pid);
+            for (EndpointAddress<?> addr: addrSet) {
+                System.out.println("\t" + addr.getFamily() + ": " + addr.getAddr().toString());
+            }
+            System.out.println("------------------");
+        }
+    }
+
 
     public static void testECS() throws Exception {
         URI uri = new URI("http://localhost:3400/alto/test_ecslite");

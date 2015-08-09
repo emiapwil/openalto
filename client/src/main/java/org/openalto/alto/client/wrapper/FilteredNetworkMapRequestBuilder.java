@@ -9,14 +9,15 @@ import javax.ws.rs.core.MediaType;
 import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.resource.ResourceEntry;
 import org.openalto.alto.common.resource.ResourceType;
-import org.openalto.alto.common.resource.ResourceTypeMapper;
 
 import org.openalto.alto.client.ALTORequest;
 import org.openalto.alto.client.ALTOResponseParser;
 
-public class ECSRequestBuilder extends PostRequestBuilder {
+public class FilteredNetworkMapRequestBuilder extends PostRequestBuilder {
 
-    public ECSRequestBuilder(Client client, ALTOResponseParser parser, ALTOEncoder encoder) {
+    public FilteredNetworkMapRequestBuilder(Client client,
+                                            ALTOResponseParser parser,
+                                            ALTOEncoder encoder) {
         super(client, parser, encoder);
     }
 
@@ -24,7 +25,7 @@ public class ECSRequestBuilder extends PostRequestBuilder {
     public boolean canRequest(ResourceEntry entry) {
         if ((entry == null) || (entry.getType() == null))
             return false;
-        return (entry.getType().equals(ResourceType.ENDPOINT_COST_SERVICE_TYPE));
+        return (entry.getType().equals(ResourceType.FILTERED_NETWORK_MAP_TYPE));
     }
 
     @Override
