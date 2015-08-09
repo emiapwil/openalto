@@ -5,15 +5,15 @@ import javax.ws.rs.core.Response;
 import org.openalto.alto.client.ALTOResponse;
 import org.openalto.alto.client.ALTOResponseParser;
 
+import org.openalto.alto.common.type.ALTOData;
+import org.openalto.alto.common.type.MetaData;
+import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMapDecoder;
 
-public class NetworkMapResponseParser extends ALTOResponseParser {
+public class NetworkMapResponseParser
+        extends DecoderParser<ALTOData<MetaData, DefaultNetworkMap>> {
 
-    @Override
-    public ALTOResponse parse(Response response) {
-        String nm = response.readEntity(String.class);
-        DefaultNetworkMapDecoder decoder = new DefaultNetworkMapDecoder();
-
-        return new ALTOResponseBase(false, response, decoder.decode(nm));
+    public NetworkMapResponseParser() {
+        super(new DefaultNetworkMapDecoder());
     }
 }

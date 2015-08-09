@@ -25,6 +25,8 @@ import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
+import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResult;
+import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResultDecoder;
 import org.openalto.alto.common.encoder.basic.InetAddressFixer;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParam;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParamEncoder;
@@ -39,6 +41,7 @@ import org.openalto.alto.client.wrapper.IRDRequestBuilder;
 import org.openalto.alto.client.wrapper.IRDResponseParser;
 import org.openalto.alto.client.wrapper.NetworkMapRequestBuilder;
 import org.openalto.alto.client.wrapper.NetworkMapResponseParser;
+import org.openalto.alto.client.wrapper.EndpointCostResponseParser;
 import org.openalto.alto.client.wrapper.ECSRequestBuilder;
 
 
@@ -160,7 +163,7 @@ public class Main {
 
         Client client = ClientBuilder.newClient();
 
-        ALTOResponseParser arp = new RawParser();
+        ALTOResponseParser arp = new EndpointCostResponseParser();
         DefaultEndpointCostParamEncoder encoder = new DefaultEndpointCostParamEncoder();
         ALTORequestBuilder arb = new ECSRequestBuilder(client, arp, encoder);
 
@@ -173,7 +176,7 @@ public class Main {
 
         InetAddressFixer dsts[] = {
             new InetAddressFixer(InetAddress.getByName("192.0.2.89")),
-            new InetAddressFixer(InetAddress.getByName("198.51.100.34")),
+            new InetAddressFixer(InetAddress.getByName("198.51.100.134")),
             new InetAddressFixer(InetAddress.getByName("203.0.113.45"))
         };
 
@@ -191,9 +194,29 @@ public class Main {
         if (!isValidesponse(response))
             return;
 
-        ALTOData<MetaData, String> data;
-        data = (ALTOData<MetaData, String>)response.get();
-        System.out.println(data.getData());
+        ALTOData<MetaData, DefaultEndpointCostResult> data;
+        data = (ALTOData<MetaData, DefaultEndpointCostResult>)response.get();
+
+        MetaData meta = data.getMeta();
+        DefaultEndpointCostResult ecr = data.getData();
+
+        CostType costType = (CostType)meta.get("cost-type");
+        System.out.println("mode:   " + costType.getMode());
+        System.out.println("metric: " + costType.getMetric());
+
+        Map<EndpointAddress<?>, Map<EndpointAddress<?>, Object>> ecsMap;
+        ecsMap = ecr.getCostMatrix();
+        for (Map.Entry<?, Map<EndpointAddress<?>, Object>> entry: ecsMap.entrySet()) {
+            Object source = entry.getKey();
+            Map<?, Object> costFromMap = entry.getValue();
+
+            for (Map.Entry<?, Object> _entry: costFromMap.entrySet()) {
+                Object dst = _entry.getKey();
+                Object cost = _entry.getValue();
+                System.out.println(source.toString() + " --> " + dst.toString()
+                                   + ": " + cost.toString());
+            }
+        }
    }
 
    public static boolean isValidesponse(ALTOResponse response) {
