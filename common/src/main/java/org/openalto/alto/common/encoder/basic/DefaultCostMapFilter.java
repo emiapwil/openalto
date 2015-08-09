@@ -6,12 +6,11 @@ import java.util.Set;
 import java.util.HashSet;
 
 import org.openalto.alto.common.type.CostType;
-import org.openalto.alto.common.type.EndpointAddress;
 
-public class DefaultEndpointCostParam
-        extends CostFilterParam<EndpointAddress<?>> {
+public class DefaultCostMapFilter
+        extends CostFilterParam<String> {
 
-    public DefaultEndpointCostParam(CostType type) {
+    public DefaultCostMapFilter(CostType type) {
         super(type);
     }
 

@@ -9,10 +9,10 @@ import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
 
-public class DefaultEndpointCostParamEncoder
-        extends CostFilterEncoder<EndpointAddress<?>> {
+public class DefaultCostMapFilterEncoder
+        extends CostFilterEncoder<String> {
 
-    public DefaultEndpointCostParamEncoder() {
-        super("endpoints");
+    public DefaultCostMapFilterEncoder() {
+        super("pids");
     }
 }
