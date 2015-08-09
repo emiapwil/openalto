@@ -23,9 +23,13 @@ import org.openalto.alto.common.decoder.ALTOChainDecoder;
 public class DefaultNetworkMapDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, DefaultNetworkMap>> {
 
+    public static final String CATEGORY_ADDR = "addr";
+
     public DefaultNetworkMapDecoder() {
-        this.add("ipv4", new InetSubnetDecoder("ipv4", 32, Inet4Address.class));
-        this.add("ipv6", new InetSubnetDecoder("ipv6", 128, Inet6Address.class));
+        this.add(CATEGORY_ADDR, "ipv4",
+                 new InetSubnetDecoder("ipv4", 32, Inet4Address.class));
+        this.add(CATEGORY_ADDR, "ipv6",
+                 new InetSubnetDecoder("ipv6", 128, Inet6Address.class));
     }
 
     @Override
@@ -101,7 +105,8 @@ public class DefaultNetworkMapDecoder
             try {
                 /* See https://tools.ietf.org/html/rfc7285#section-11.2.1.7 */
 
-                ALTODecoder<? extends Object> subDecoder = this.get(family);
+                ALTODecoder<? extends Object> subDecoder;
+                subDecoder = this.get(CATEGORY_ADDR, family);
                 if (subDecoder == null) {
                     continue;
                 }

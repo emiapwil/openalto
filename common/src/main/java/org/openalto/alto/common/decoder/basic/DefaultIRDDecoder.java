@@ -29,6 +29,8 @@ import org.openalto.alto.common.decoder.ALTOChainDecoder;
 public class DefaultIRDDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, List<ResourceEntry>>> {
 
+    public static final String CATEGORY_CAPABILITY = "capability";
+
     private ObjectMapper m_mapper = new ObjectMapper();
     private ResourceTypeMapper m_typeMapper = ResourceTypeMapper.getRFC7285Mapper();
 
@@ -116,9 +118,11 @@ public class DefaultIRDDecoder
             ALTODecoder<Set<? extends Capability<?>>> decoder;
             Set<? extends Capability<?>> newCapbilities;
             try {
-                ALTOChainDecoder<Set<? extends Capability<?>>> capDecoder;
-                capDecoder = (ALTOChainDecoder<Set<? extends Capability<?>>>)this.get("capability");
-                decoder = (ALTODecoder<Set<? extends Capability<?>>>)capDecoder.get(capabilityName);
+                ALTODecoder<? extends Object> subDecoder;
+                subDecoder = this.get(CATEGORY_CAPABILITY, capabilityName);
+
+                decoder = (ALTODecoder<Set<? extends Capability<?>>>)subDecoder;
+
                 newCapbilities = decoder.decode(capabilityValue);
                 retval.addAll(newCapbilities);
             } catch (Exception e) {

@@ -6,25 +6,44 @@ import java.util.HashMap;
 
 public abstract class ALTOChainDecoder<T> implements ALTODecoder<T> {
 
-    private Map<String, ALTODecoder<? extends Object>>
-    m_subDecoder = new HashMap<String, ALTODecoder<? extends Object>>();
+    private Map<String, Map<Object, ALTODecoder<? extends Object>>>
+    m_subDecoder = new HashMap<String, Map<Object, ALTODecoder<? extends Object>>>();
 
-    public ALTOChainDecoder add(String field,
+    public ALTOChainDecoder add(String category, Object field,
                                 ALTODecoder<? extends Object> decoder) {
-        m_subDecoder.put(field, decoder);
+        if (!m_subDecoder.containsKey(category)) {
+            m_subDecoder.put(category, new HashMap<Object, ALTODecoder<? extends Object>>());
+        }
+        Map<Object, ALTODecoder<? extends Object>> categoried;
+        categoried = m_subDecoder.get(category);
+
+        categoried.put(field, decoder);
         return this;
     }
 
-    public ALTODecoder<?> get(String field) {
-        return m_subDecoder.get(field);
+    public ALTODecoder<?> get(String category, Object field) {
+        Map<Object, ALTODecoder<? extends Object>> categoried;
+        categoried = m_subDecoder.get(category);
+        if (categoried == null)
+            return null;
+        return categoried.get(field);
     }
 
-    public Collection<ALTODecoder<?>> getAll() {
-        return m_subDecoder.values();
+    public Collection<Map.Entry<Object, ALTODecoder<? extends Object>>> getAll(String category) {
+        Map<Object, ALTODecoder<? extends Object>> categoried;
+        categoried = m_subDecoder.get(category);
+        if (categoried == null)
+            return null;
+
+        return categoried.entrySet();
     }
 
-    public ALTOChainDecoder remove(String field) {
-        m_subDecoder.remove(field);
+    public ALTOChainDecoder remove(String category, Object field) {
+        Map<Object, ALTODecoder<? extends Object>> categoried;
+        categoried = m_subDecoder.get(category);
+        if (categoried != null) {
+            categoried.remove(field);
+        }
         return this;
     }
 }
