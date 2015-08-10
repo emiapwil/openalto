@@ -30,6 +30,7 @@ public class DefaultIRDDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, List<ResourceEntry>>> {
 
     public static final String CATEGORY_CAPABILITY = "capability";
+    public static final String CATEGORY_META = "meta";
 
     private ObjectMapper m_mapper = new ObjectMapper();
     private ResourceTypeMapper m_typeMapper = ResourceTypeMapper.getRFC7285Mapper();
@@ -95,14 +96,32 @@ public class DefaultIRDDecoder
         return list;
     }
 
-    public MetaData decodeMetaData(ObjectNode metaNode) {
+    public MetaData decodeMetaData(JsonNode node) {
+        if ((node == null) || (!node.isObject()))
+            return null;
+        ObjectNode metaNode = (ObjectNode)node;
         MetaData meta = new MetaData();
 
         Iterator<Map.Entry<String, JsonNode>> itr;
         for (itr = metaNode.fields(); itr.hasNext(); ) {
             Map.Entry<String, JsonNode> entry = itr.next();
-            //TODO
+            String field = entry.getKey();
+            JsonNode target = entry.getValue();
+
+            ALTODecoder<?> decoder = this.get(CATEGORY_META, field);
+            if (decoder == null) {
+                meta.put(field, target.toString());
+                continue;
+            }
+
+            Object decoded = decoder.decode(target);
+            if (decoded == null) {
+                continue;
+            }
+
+            meta.put(field, decoded);
         }
+
         return meta;
     }
 

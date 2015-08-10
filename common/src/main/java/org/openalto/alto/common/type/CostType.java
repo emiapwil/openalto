@@ -6,10 +6,24 @@ public class CostType {
 
     private String m_mode;
     private String m_metric;
+    private String m_desc;
 
     public CostType(String mode, String metric) {
         m_mode = mode;
         m_metric = metric;
+        m_desc = "";
+    }
+
+    public CostType(String mode, String metric, String desc) {
+        m_mode = mode;
+        m_metric = metric;
+        m_desc = desc;
+    }
+
+    public CostType(CostType rhs) {
+        m_mode = rhs.getMode();
+        m_metric = rhs.getMetric();
+        m_desc = rhs.getDescription();
     }
 
     public String getMode() {
@@ -18,6 +32,10 @@ public class CostType {
 
     public String getMetric() {
         return m_metric;
+    }
+
+    public String getDescription() {
+        return m_desc;
     }
 
     @Override
