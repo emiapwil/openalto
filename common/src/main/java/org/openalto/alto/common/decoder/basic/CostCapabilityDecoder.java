@@ -104,6 +104,9 @@ public class CostCapabilityDecoder {
                 String name = nameNode.asText();
                 CostType type = m_mapping.get(name);
 
+                if (type == null)
+                    continue;
+
                 Capability<CostType> capability;
                 capability = new Capability<CostType>("cost-type", type);
 

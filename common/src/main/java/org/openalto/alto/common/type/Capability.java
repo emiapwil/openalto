@@ -38,4 +38,9 @@ public class Capability<T> {
         Object rhs[] = { that.getCategory(), that.getSpec() };
         return Arrays.deepEquals(lhs, rhs);
     }
+
+    @Override
+    public String toString() {
+        return getCategory() + ":" + getSpec().toString();
+    }
 }

@@ -36,6 +36,9 @@ public class DefaultIRDDecoder
     private ResourceTypeMapper m_typeMapper = ResourceTypeMapper.getRFC7285Mapper();
 
     public DefaultIRDDecoder() {
+        CostCapabilityDecoder ccDecoder = new CostCapabilityDecoder();
+        this.add(CATEGORY_META, "cost-types", ccDecoder.metaDecoder());
+        this.add(CATEGORY_CAPABILITY, "cost-type-names", ccDecoder.capabilityDecoder());
     }
 
     @Override
@@ -50,9 +53,10 @@ public class DefaultIRDDecoder
     @Override
     public ALTOData<MetaData, List<ResourceEntry>> decode(JsonNode node) {
         try {
+            MetaData meta = this.decodeMetaData(node.get("meta"));
             List<ResourceEntry> resources = this.decodeResources(node.get("resources"));
             if (resources != null)
-                return new ALTOData<MetaData, List<ResourceEntry>>(null, resources);
+                return new ALTOData<MetaData, List<ResourceEntry>>(meta, resources);
         } catch (Exception e) {
         }
         return null;
@@ -81,12 +85,19 @@ public class DefaultIRDDecoder
                 String contentTypeName = (contentType == null ? null : contentType.asText());
                 ResourceType type = m_typeMapper.getResourceType(paramTypeName, contentTypeName);
 
+                Set<Capability<?>> capabilities = new HashSet<Capability<?>>();
+                JsonNode capabilitiesNode = content.get("capabilities");
+                if (capabilitiesNode != null) {
+                    capabilities.addAll(this.decodeCapabilities(capabilitiesNode));
+                }
+
                 if (type == null)
                     continue;
 
                 ResourceEntry re = new ResourceEntry(content.get("uri").asText(), type);
                 //TODO add support for capabilities/uses
                 re.setResourceID(rid);
+                re.setCapabilities(capabilities);
 
                 list.add(re);
             } catch (URISyntaxException e) {
@@ -125,30 +136,34 @@ public class DefaultIRDDecoder
         return meta;
     }
 
-    public Set<Capability<?>> decodeCapabilities(ObjectNode capabilities) {
-        Set<Capability<?>> retval = new HashSet<Capability<?>>();
+    public Set<Capability<?>> decodeCapabilities(JsonNode node) {
+        if ((node == null) || (!node.isObject()))
+            return null;
+        ObjectNode capabilitiesNode = (ObjectNode)node;
+        Set<Capability<?>> capabilities = new HashSet<Capability<?>>();
 
         Iterator<Map.Entry<String, JsonNode>> itr;
-        for (itr = capabilities.fields(); itr.hasNext(); ) {
+        for (itr = capabilitiesNode.fields(); itr.hasNext(); ) {
             Map.Entry<String, JsonNode> entry = itr.next();
             String capabilityName = entry.getKey();
             JsonNode capabilityValue = entry.getValue();
 
             ALTODecoder<Set<? extends Capability<?>>> decoder;
-            Set<? extends Capability<?>> newCapbilities;
             try {
                 ALTODecoder<? extends Object> subDecoder;
                 subDecoder = this.get(CATEGORY_CAPABILITY, capabilityName);
 
                 decoder = (ALTODecoder<Set<? extends Capability<?>>>)subDecoder;
 
-                newCapbilities = decoder.decode(capabilityValue);
-                retval.addAll(newCapbilities);
+                Set<? extends Capability<?>> newCapabilities;
+                newCapabilities = decoder.decode(capabilityValue);
+
+                capabilities.addAll(newCapabilities);
             } catch (Exception e) {
             }
         }
 
-        return retval;
+        return capabilities;
     }
 
     public Set<ResourceEntry> decodeUses(ArrayNode uses) {

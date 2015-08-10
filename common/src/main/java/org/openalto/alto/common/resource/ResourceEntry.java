@@ -3,7 +3,10 @@ package org.openalto.alto.common.resource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
+
+import org.openalto.alto.common.type.Capability;
 
 public class ResourceEntry {
 
@@ -15,7 +18,7 @@ public class ResourceEntry {
 
     private ResourceType m_type;
 
-    private Map<String, ResourceCapability> m_capabilities;
+    private Set<Capability<?>> m_capabilities;
 
     private List<URI> m_dependencies;
 
@@ -79,12 +82,12 @@ public class ResourceEntry {
         return m_type;
     }
 
-    public ResourceEntry setCapabilities(Map<String, ResourceCapability> cap) {
+    public ResourceEntry setCapabilities(Set<Capability<?>> cap) {
         m_capabilities = cap;
         return this;
     }
 
-    public Map<String, ResourceCapability> getCapabilities() {
+    public Set<Capability<?>> getCapabilities() {
         return m_capabilities;
     }
 
