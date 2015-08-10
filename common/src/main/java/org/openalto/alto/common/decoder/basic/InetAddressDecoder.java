@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.type.EndpointAddress;
+import org.openalto.alto.common.encoder.basic.InetAddressFixer;
 
 public class InetAddressDecoder
         implements ALTODecoder<EndpointAddress<InetAddress>> {
@@ -26,7 +27,7 @@ public class InetAddressDecoder
             InetAddress addr = InetAddress.getByName(text);
             if (!m_class.isInstance(addr))
                 return null;
-            return new EndpointAddress<InetAddress>(m_family, addr);
+            return new InetAddressFixer(m_family, addr);
         } catch (Exception e) {
         }
         return null;

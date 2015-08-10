@@ -29,10 +29,13 @@ import org.openalto.alto.common.type.ResourceTag;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultCostMap;
 import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResult;
+import org.openalto.alto.common.decoder.basic.DefaultEndpointPropertyResult;
 import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.encoder.basic.InetAddressFixer;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParam;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParamEncoder;
+import org.openalto.alto.common.encoder.basic.DefaultEndpointPropertyParam;
+import org.openalto.alto.common.encoder.basic.DefaultEndpointPropertyParamEncoder;
 import org.openalto.alto.common.encoder.basic.DefaultNetworkMapFilter;
 import org.openalto.alto.common.encoder.basic.DefaultNetworkMapFilterEncoder;
 import org.openalto.alto.common.encoder.basic.DefaultCostMapFilter;
@@ -50,6 +53,8 @@ import org.openalto.alto.client.wrapper.CostMapRequestBuilder;
 import org.openalto.alto.client.wrapper.CostMapResponseParser;
 import org.openalto.alto.client.wrapper.NetworkMapRequestBuilder;
 import org.openalto.alto.client.wrapper.NetworkMapResponseParser;
+import org.openalto.alto.client.wrapper.EndpointPropertyResponseParser;
+import org.openalto.alto.client.wrapper.EndpointPropertyRequestBuilder;
 import org.openalto.alto.client.wrapper.EndpointCostResponseParser;
 import org.openalto.alto.client.wrapper.EndpointCostRequestBuilder;
 import org.openalto.alto.client.wrapper.FilteredCostMapRequestBuilder;
@@ -119,6 +124,12 @@ public class Main {
         System.out.println("Test Filtered Cost Map:");
         try {
             testFCM();
+        } catch (Exception e) {
+        }
+
+        System.out.println("Test Endpoint Property Service:");
+        try {
+            testEPS();
         } catch (Exception e) {
         }
 
@@ -425,6 +436,68 @@ public class Main {
             }
         }
    }
+
+    public static void testEPS() throws Exception {
+        URI uri = new URI("http://localhost:3400/alto/test_epslite");
+        ResourceType resourceType = ResourceType.ENDPOINT_PROP_SERVICE_TYPE;
+
+        ResourceEntry resource = new ResourceEntry(uri, resourceType);
+
+        Client client = ClientBuilder.newClient();
+
+        ALTOResponseParser arp = new EndpointPropertyResponseParser();
+        DefaultEndpointPropertyParamEncoder encoder = new DefaultEndpointPropertyParamEncoder();
+        ALTORequestBuilder arb = new EndpointPropertyRequestBuilder(client, arp, encoder);
+
+        Set<EndpointAddress<?>> endpoints = new HashSet<EndpointAddress<?>>();
+        InetAddressFixer addr[] = {
+            new InetAddressFixer("ipv4", InetAddress.getByName("192.0.2.34")),
+            new InetAddressFixer("ipv4", InetAddress.getByName("203.0.113.129"))
+        };
+        endpoints.add(addr[0]);
+        endpoints.add(addr[1]);
+
+        Set<String> properties = new HashSet<String>();
+        properties.add("test_sf_networkmap.pid");
+        properties.add("priv:ietf-example-prop");
+
+        DefaultEndpointPropertyParam param;
+        param = new DefaultEndpointPropertyParam(endpoints, properties);
+
+        ALTORequest request = arb.request(resource, param);
+        ALTOResponse response = request.invoke();
+
+        if (!isValidesponse(response))
+            return;
+
+        ALTOData<MetaData, DefaultEndpointPropertyResult> data;
+        data = (ALTOData<MetaData, DefaultEndpointPropertyResult>)response.get();
+
+        MetaData meta = data.getMeta();
+
+        Collection<ResourceTag> dependentVtags;
+        dependentVtags = (Collection<ResourceTag>)meta.get("dependent-vtags");
+        System.out.println("Depends:");
+        for (ResourceTag vtag: dependentVtags) {
+            System.out.println("\tResource ID: " + vtag.getResourceId());
+            System.out.println("\tTag:         " + vtag.getTag());
+        }
+
+        DefaultEndpointPropertyResult epr = data.getData();
+        Map<EndpointAddress<?>, Map<String, Object>> epsMap;
+
+        epsMap = epr.getPropertyMap();
+        for (Map.Entry<?, Map<String, Object>> entry: epsMap.entrySet()) {
+            Object endpoint = entry.getKey();
+            Map<?, Object> propertyMap = entry.getValue();
+
+            System.out.println(endpoint.toString());
+            for (Map.Entry<?, Object> property: propertyMap.entrySet()) {
+                System.out.println("\t" + property.getKey().toString() + ": " + property.getValue());
+            }
+        }
+   }
+
 
    public static boolean isValidesponse(ALTOResponse response) {
         if (response == null) {
