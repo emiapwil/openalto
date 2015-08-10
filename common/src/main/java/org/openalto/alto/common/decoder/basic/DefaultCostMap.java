@@ -5,10 +5,10 @@ import java.util.HashMap;
 
 import org.openalto.alto.common.type.EndpointAddress;
 
-public class DefaultEndpointCostResult
-        extends CostResult<EndpointAddress<?>> {
+public class DefaultCostMap
+        extends CostResult<String> {
 
-    public DefaultEndpointCostResult(CostResult<EndpointAddress<?>> rhs) {
+    public DefaultCostMap(CostResult<String> rhs) {
         super(rhs);
     }
 }

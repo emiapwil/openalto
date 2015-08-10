@@ -25,15 +25,16 @@ import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
-import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
+import org.openalto.alto.common.decoder.basic.DefaultCostMap;
 import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResult;
-import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResultDecoder;
 import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.encoder.basic.InetAddressFixer;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParam;
 import org.openalto.alto.common.encoder.basic.DefaultEndpointCostParamEncoder;
 import org.openalto.alto.common.encoder.basic.DefaultNetworkMapFilter;
 import org.openalto.alto.common.encoder.basic.DefaultNetworkMapFilterEncoder;
+import org.openalto.alto.common.encoder.basic.DefaultCostMapFilter;
+import org.openalto.alto.common.encoder.basic.DefaultCostMapFilterEncoder;
 
 import org.openalto.alto.client.ALTORequest;
 import org.openalto.alto.client.ALTORequestBuilder;
@@ -43,11 +44,15 @@ import org.openalto.alto.client.ALTOResponseParser;
 import org.openalto.alto.client.wrapper.RawParser;
 import org.openalto.alto.client.wrapper.IRDRequestBuilder;
 import org.openalto.alto.client.wrapper.IRDResponseParser;
+import org.openalto.alto.client.wrapper.CostMapRequestBuilder;
+import org.openalto.alto.client.wrapper.CostMapResponseParser;
 import org.openalto.alto.client.wrapper.NetworkMapRequestBuilder;
 import org.openalto.alto.client.wrapper.NetworkMapResponseParser;
 import org.openalto.alto.client.wrapper.EndpointCostResponseParser;
-import org.openalto.alto.client.wrapper.ECSRequestBuilder;
+import org.openalto.alto.client.wrapper.EndpointCostRequestBuilder;
+import org.openalto.alto.client.wrapper.FilteredCostMapRequestBuilder;
 import org.openalto.alto.client.wrapper.FilteredNetworkMapRequestBuilder;
+
 
 
 /**
@@ -100,6 +105,18 @@ public class Main {
         System.out.println("Test Filtered Network Map:");
         try {
             testFNM();
+        } catch (Exception e) {
+        }
+
+        System.out.println("Test Cost Map:");
+        try {
+            testCM();
+        } catch (Exception e) {
+        }
+
+        System.out.println("Test Filtered Cost Map:");
+        try {
+            testFCM();
         } catch (Exception e) {
         }
 
@@ -180,6 +197,81 @@ public class Main {
         }
     }
 
+    public static void testCM() throws IOException, URISyntaxException {
+        URI uri = new URI("http://localhost:3400/alto/test_sf_costmap");
+        ResourceType type = ResourceType.COST_MAP_TYPE;
+
+        ResourceEntry resource = new ResourceEntry(uri, type);
+
+        Client client = ClientBuilder.newClient();
+
+        ALTOResponseParser arp = new CostMapResponseParser();
+        ALTORequestBuilder arb = new CostMapRequestBuilder(client, arp);
+
+        ALTORequest request = arb.request(resource, null);
+        ALTOResponse response = request.invoke();
+
+        if (!isValidesponse(response))
+            return;
+
+        ALTOData<?, DefaultCostMap> cm = (ALTOData<?, DefaultCostMap>)response.get();
+        DefaultCostMap costMap = cm.getData();
+
+        for (Map.Entry<?, Map<String, Object>> entry: costMap.getCostMatrix().entrySet()) {
+            Object source = entry.getKey();
+            Map<?, Object> costFromMap = entry.getValue();
+
+            for (Map.Entry<?, Object> _entry: costFromMap.entrySet()) {
+                Object dst = _entry.getKey();
+                Object cost = _entry.getValue();
+                System.out.println(source.toString() + " --> " + dst.toString()
+                                   + ": " + cost.toString());
+            }
+        }
+    }
+
+    public static void testFCM() throws IOException, URISyntaxException {
+        URI uri = new URI("http://localhost:3400/alto/test_fcmlite");
+        ResourceType type = ResourceType.FILTERED_COST_MAP_TYPE;
+
+        ResourceEntry resource = new ResourceEntry(uri, type);
+
+        Client client = ClientBuilder.newClient();
+
+        ALTOEncoder encoder = new DefaultCostMapFilterEncoder();
+        ALTOResponseParser arp = new CostMapResponseParser();
+        ALTORequestBuilder arb = new FilteredCostMapRequestBuilder(client, arp, encoder);
+
+        CostType costType = new CostType("numerical", "routingcost");
+        DefaultCostMapFilter filter = new DefaultCostMapFilter(costType);
+
+        filter.addSource("PID1");
+        filter.addDestination("PID2");
+        filter.addDestination("PID3");
+
+        ALTORequest request = arb.request(resource, filter);
+        ALTOResponse response = request.invoke();
+
+        if (!isValidesponse(response))
+            return;
+
+        ALTOData<?, DefaultCostMap> cm = (ALTOData<?, DefaultCostMap>)response.get();
+        DefaultCostMap costMap = cm.getData();
+
+        for (Map.Entry<?, Map<String, Object>> entry: costMap.getCostMatrix().entrySet()) {
+            Object source = entry.getKey();
+            Map<?, Object> costFromMap = entry.getValue();
+
+            for (Map.Entry<?, Object> _entry: costFromMap.entrySet()) {
+                Object dst = _entry.getKey();
+                Object cost = _entry.getValue();
+                System.out.println(source.toString() + " --> " + dst.toString()
+                                   + ": " + cost.toString());
+            }
+        }
+    }
+
+
     public static void testFNM() throws IOException, URISyntaxException {
         URI uri = new URI("http://localhost:3400/alto/test_fnmlite");
         ResourceType type = ResourceType.FILTERED_NETWORK_MAP_TYPE;
@@ -232,7 +324,7 @@ public class Main {
 
         ALTOResponseParser arp = new EndpointCostResponseParser();
         DefaultEndpointCostParamEncoder encoder = new DefaultEndpointCostParamEncoder();
-        ALTORequestBuilder arb = new ECSRequestBuilder(client, arp, encoder);
+        ALTORequestBuilder arb = new EndpointCostRequestBuilder(client, arp, encoder);
 
         CostType type = new CostType("numerical", "routingcost");
         DefaultEndpointCostParam param = new DefaultEndpointCostParam(type);

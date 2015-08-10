@@ -14,9 +14,11 @@ import org.openalto.alto.common.resource.ResourceTypeMapper;
 import org.openalto.alto.client.ALTORequest;
 import org.openalto.alto.client.ALTOResponseParser;
 
-public class ECSRequestBuilder extends PostRequestBuilder {
+public class EndpointCostRequestBuilder extends PostRequestBuilder {
 
-    public ECSRequestBuilder(Client client, ALTOResponseParser parser, ALTOEncoder encoder) {
+    public EndpointCostRequestBuilder(Client client,
+                                      ALTOResponseParser parser,
+                                      ALTOEncoder encoder) {
         super(client, parser, encoder);
     }
 
