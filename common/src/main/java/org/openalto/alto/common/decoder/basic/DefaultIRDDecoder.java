@@ -1,5 +1,6 @@
 package org.openalto.alto.common.decoder.basic;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
@@ -31,6 +32,7 @@ public class DefaultIRDDecoder
 
     public static final String CATEGORY_CAPABILITY = "capability";
     public static final String CATEGORY_META = "meta";
+    public static final String CATEGORY_RESOURCE = "resource";
 
     private ObjectMapper m_mapper = new ObjectMapper();
     private ResourceTypeMapper m_typeMapper = ResourceTypeMapper.getRFC7285Mapper();
@@ -39,6 +41,34 @@ public class DefaultIRDDecoder
         CostCapabilityDecoder ccDecoder = new CostCapabilityDecoder();
         this.add(CATEGORY_META, "cost-types", ccDecoder.metaDecoder());
         this.add(CATEGORY_CAPABILITY, "cost-type-names", ccDecoder.capabilityDecoder());
+        this.add(CATEGORY_RESOURCE, "uses", new ALTODecoder<Set<String>>() {
+            @Override
+            public Set<String> decode(String text) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    return decode(mapper.readTree(text));
+                } catch (Exception e) {
+                }
+                return null;
+            }
+
+            @Override
+            public Set<String> decode(JsonNode node) {
+                if ((node == null) || (!node.isArray())) {
+                    return null;
+                }
+                ArrayNode usesNode = (ArrayNode)node;
+                Set<String> uses = new HashSet<String>();
+                for (Iterator<JsonNode> itr = usesNode.elements(); itr.hasNext(); ) {
+                    try {
+                        JsonNode useNode = itr.next();
+                        uses.add(useNode.asText());
+                    } catch (Exception e) {
+                    }
+                }
+                return uses;
+            }
+        });
     }
 
     @Override
@@ -62,6 +92,9 @@ public class DefaultIRDDecoder
         return null;
     }
 
+    protected static final List<String>
+    STANDARD_RESOURCE_FIELDS = Arrays.asList("uri", "media-type", "accepts", "capabilities");
+
     public List<ResourceEntry> decodeResources(JsonNode resourcesNode) {
         if ((resourcesNode == null) || (resourcesNode.isNull()))
             return null;
@@ -74,7 +107,7 @@ public class DefaultIRDDecoder
         for (itr = ((ObjectNode)resourcesNode).fields(); itr.hasNext(); ) {
             Map.Entry<String, JsonNode> resource = itr.next();
             String rid = resource.getKey();
-            JsonNode content = resource.getValue();
+            ObjectNode content = (ObjectNode)resource.getValue();
 
             try {
                 Map<String, Object> resourceData = new HashMap<String, Object>();
@@ -95,9 +128,27 @@ public class DefaultIRDDecoder
                     continue;
 
                 ResourceEntry re = new ResourceEntry(content.get("uri").asText(), type);
-                //TODO add support for capabilities/uses
                 re.setResourceID(rid);
                 re.setCapabilities(capabilities);
+
+                ObjectNode wildcardDataNode = content.without(STANDARD_RESOURCE_FIELDS);
+                Iterator<Map.Entry<String, JsonNode>> dataItr;
+                for (dataItr = wildcardDataNode.fields(); dataItr.hasNext(); ) {
+                    Map.Entry<String, JsonNode> entry = dataItr.next();
+                    String fieldName = entry.getKey();
+                    JsonNode dataNode = entry.getValue();
+
+                    ALTODecoder<?> wildcardDecoder = this.get(CATEGORY_RESOURCE, fieldName);
+                    if (wildcardDecoder == null) {
+                        re.putData(fieldName, dataNode.toString());
+                        continue;
+                    }
+
+                    try {
+                        re.putData(fieldName, wildcardDecoder.decode(dataNode));
+                    } catch (Exception e) {
+                    }
+                }
 
                 list.add(re);
             } catch (URISyntaxException e) {

@@ -111,11 +111,17 @@ public class DefaultIRDDecoderTest {
         ArrayNode ctnNode = (ArrayNode)capNode.withArray("cost-type-names");
         ctnNode.add("num-routing");
 
+        ArrayNode usesNode = (ArrayNode)cmNode.withArray("uses");
+        usesNode.add("my-default-network-map");
+
         System.out.println(root.toString());
 
         DefaultIRDDecoder decoder = new DefaultIRDDecoder();
-        ALTOData<?, List<ResourceEntry>> data = decoder.decode(root.toString());
+        ALTOData<MetaData, List<ResourceEntry>> data;
+        data = decoder.decode(root.toString());
         assertNotNull(data);
+
+        MetaData meta = data.getMeta();
 
         List<ResourceEntry> resources = data.getData();
         assertEquals(resources.size(), 2);
@@ -130,6 +136,10 @@ public class DefaultIRDDecoderTest {
                 Set<Capability<?>> capabilities = resource.getCapabilities();
                 CostType numRoutingCostType = (CostType)bindings[0][1];
                 assertTrue(capabilities.contains(new Capability<CostType>("cost-type", numRoutingCostType)));
+
+                Set<String> uses = (Set<String>)resource.getData("uses");
+                assertEquals(uses.size(), 1);
+                assertTrue(uses.contains("my-default-network-map"));
             } else {
                 assertTrue(false);
             }

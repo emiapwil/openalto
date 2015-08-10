@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
+import javax.script.SimpleBindings;
+
 import org.openalto.alto.common.type.Capability;
 
 public class ResourceEntry {
@@ -23,6 +25,8 @@ public class ResourceEntry {
     private List<URI> m_dependencies;
 
     private boolean m_isDefault = false;
+
+    private SimpleBindings m_wildcardData = new SimpleBindings();
 
     public ResourceEntry(URI uri, ResourceType type) {
         m_uri = uri;
@@ -87,6 +91,11 @@ public class ResourceEntry {
         return this;
     }
 
+    public ResourceEntry addCapability(Capability<?> capability) {
+        m_capabilities.add(capability);
+        return this;
+    }
+
     public Set<Capability<?>> getCapabilities() {
         return m_capabilities;
     }
@@ -98,5 +107,13 @@ public class ResourceEntry {
 
     public boolean isDefault() {
         return m_isDefault;
+    }
+
+    public void putData(String name, Object data) {
+        m_wildcardData.put(name, data);
+    }
+
+    public Object getData(String name) {
+        return m_wildcardData.get(name);
     }
 }
