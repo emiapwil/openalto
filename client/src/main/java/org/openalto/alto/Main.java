@@ -26,6 +26,7 @@ import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
 import org.openalto.alto.common.type.ResourceTag;
+import org.openalto.alto.common.type.Capability;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultCostMap;
 import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResult;
@@ -154,17 +155,13 @@ public class Main {
         ALTORequest request = arb.request(resource, null);
         ALTOResponse response = request.invoke();
 
-        if (response == null) {
-            System.out.println("Something wrong with the connection");
+        if (!isValidesponse(response))
             return;
-        }
-        if (response.isError()) {
-            String msg = response.get().toString();
-            System.out.println(msg);
-            return;
-        }
 
-        List<ResourceEntry> resourceList = (List<ResourceEntry>)response.get();
+        ALTOData<MetaData, List<ResourceEntry>> data;
+        data = (ALTOData<MetaData, List<ResourceEntry>>)response.get();
+
+        List<ResourceEntry> resourceList = data.getData();
         if (resourceList == null) {
             System.out.println("Empty ALTO IRD");
             return;
@@ -174,6 +171,19 @@ public class Main {
             System.out.println("ResourceId:   " + re.getResourceId());
             System.out.println("URI:          " + re.getURI());
             System.out.println("ResourceType: " + re.getType());
+            if (re.getCapabilities() != null) {
+                System.out.println("Capabilities:");
+                for (Capability<?> capability: re.getCapabilities()) {
+                    System.out.println("\t" + capability.toString());
+                }
+            }
+            if (re.getData("uses") != null) {
+                Set<String> uses = (Set<String>)re.getData("uses");
+                System.out.println("Uses:");
+                for (String use: uses) {
+                    System.out.println("\t" + use);
+                }
+            }
             System.out.println("-------------------");
         }
     }
