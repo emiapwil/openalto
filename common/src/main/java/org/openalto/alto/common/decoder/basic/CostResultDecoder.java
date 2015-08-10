@@ -127,7 +127,7 @@ public abstract class CostResultDecoder<T>
             if (costs == null)
                 continue;
 
-            result.addCostFrom(srcAddr, costs);
+            result.addCosts(srcAddr, costs);
         }
         return result;
     }

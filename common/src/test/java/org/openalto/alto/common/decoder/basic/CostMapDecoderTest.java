@@ -98,15 +98,15 @@ public class CostMapDecoderTest {
 
         Map<String, Object> costs;
 
-        costs = dcm.getCostFrom(pid[0]);
+        costs = dcm.getCosts(pid[0]);
         assertNotNull(costs);
         assertEquals(costs.size(), 3);
 
-        costs = dcm.getCostFrom(pid[1]);
+        costs = dcm.getCosts(pid[1]);
         assertNotNull(costs);
         assertEquals(costs.size(), 3);
 
-        costs = dcm.getCostFrom(pid[2]);
+        costs = dcm.getCosts(pid[2]);
         assertNotNull(costs);
         assertEquals(costs.size(), 2);
 

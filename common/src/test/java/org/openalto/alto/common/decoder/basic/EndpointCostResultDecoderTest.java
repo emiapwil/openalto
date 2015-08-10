@@ -77,7 +77,7 @@ public class EndpointCostResultDecoderTest {
 
         InetAddress sourceAddr = InetAddress.getByName("192.0.2.2");
         EndpointAddress<?> source = new EndpointAddress<InetAddress>("ipv4", sourceAddr);
-        Map<EndpointAddress<?>, Object> costs = ecr.getCostFrom(source);
+        Map<EndpointAddress<?>, Object> costs = ecr.getCosts(source);
         assertNotNull(costs);
         assertEquals(costs.size(), 3);
 

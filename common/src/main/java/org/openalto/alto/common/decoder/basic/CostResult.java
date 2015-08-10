@@ -1,51 +1,37 @@
 package org.openalto.alto.common.decoder.basic;
 
 import java.util.Map;
-import java.util.HashMap;
+
+import org.openalto.alto.common.type.Map2D;
 
 public class CostResult<T> {
 
-    private Map<T, Map<T, Object>>
-    m_costMatrix = new HashMap<T, Map<T, Object>>();
+    private Map2D<T, T, Object> m_costMatrix = new Map2D<T, T, Object>();
 
     public CostResult() {
     }
 
     public CostResult(CostResult rhs) {
-        m_costMatrix = rhs.getCostMatrix();
+        m_costMatrix = new Map2D(rhs.getCostMatrix());
     }
 
     public Map<T, Map<T, Object>> getCostMatrix() {
-        return m_costMatrix;
+        return m_costMatrix.getFullMap();
     }
 
-    public Map<T, Object> getCostFrom(T source) {
+    public Map<T, Object> getCosts(T source) {
         return m_costMatrix.get(source);
     }
 
-    public Object getCost(T source,
-                          T destination) {
-        Map<T, Object> costs = getCostFrom(source);
-        if (costs == null)
-            return null;
-        return  costs.get(destination);
+    public Object getCost(T source, T destination) {
+        return m_costMatrix.get(source, destination);
     }
 
-    public void addCost(T source,
-                        T destination, Object cost) {
-        if (!m_costMatrix.containsKey(source)) {
-            m_costMatrix.put(source, new HashMap<T, Object>());
-        }
-        Map<T, Object> map = m_costMatrix.get(source);
-        map.put(destination, cost);
+    public void addCost(T source, T destination, Object cost) {
+        m_costMatrix.put(source, destination, cost);
     }
 
-    public void addCostFrom(T source,
-                            Map<? extends T, ? extends Object> costs) {
-        if (!m_costMatrix.containsKey(source)) {
-            m_costMatrix.put(source, new HashMap<T, Object>());
-        }
-        Map<T, Object> map = m_costMatrix.get(source);
-        map.putAll(costs);
+    public void addCosts(T source, Map<? extends T, ? extends Object> costs) {
+        m_costMatrix.put(source, costs);
     }
 }

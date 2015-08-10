@@ -22,21 +22,21 @@ public class ECSParamEncoderTest {
         ALTOEncoder encoder = new DefaultEndpointCostParamEncoder();
 
         InetAddressFixer srcs[] = {
-            new InetAddressFixer(InetAddress.getByName("192.0.2.2"))
+            new InetAddressFixer("ipv4", InetAddress.getByName("192.0.2.2"))
         };
 
         InetAddressFixer dsts[] = {
-            new InetAddressFixer(InetAddress.getByName("192.0.2.89")),
-            new InetAddressFixer(InetAddress.getByName("198.51.100.34")),
-            new InetAddressFixer(InetAddress.getByName("203.0.113.45"))
+            new InetAddressFixer("ipv4", InetAddress.getByName("192.0.2.89")),
+            new InetAddressFixer("ipv4", InetAddress.getByName("198.51.100.34")),
+            new InetAddressFixer("ipv4", InetAddress.getByName("203.0.113.45"))
         };
 
         for (InetAddressFixer addr: srcs) {
-            param.addSource(new EndpointAddress<InetAddressFixer>("ipv4", addr));
+            param.addSource(addr);
         }
 
         for (InetAddressFixer addr: dsts) {
-            param.addDestination(new EndpointAddress<InetAddressFixer>("ipv4", addr));
+            param.addDestination(addr);
         }
 
         System.out.println(encoder.encodeAsString((Object)param));
