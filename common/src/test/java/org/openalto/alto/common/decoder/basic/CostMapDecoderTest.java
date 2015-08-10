@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import java.net.InetAddress;
 
+import java.util.Collection;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.Map;
 
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.openalto.alto.common.type.ALTOData;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.MetaData;
+import org.openalto.alto.common.type.ResourceTag;
 import org.openalto.alto.common.type.EndpointAddress;
 
 public class CostMapDecoderTest {
@@ -61,6 +64,13 @@ public class CostMapDecoderTest {
         node.put(pid[1], new Integer(15));
 
         ObjectNode metaNode = (ObjectNode)map.with("meta");
+        ArrayNode dependentVtags = (ArrayNode)metaNode.withArray("dependent-vtags");
+        ResourceTag vtag = new ResourceTag("hello-world-map", "17793de59d3d4e98ad6f08f98273c241");
+        ObjectNode vtagNode = (ObjectNode)mapper.readTree("{}");
+        vtagNode.put("resource-id", vtag.getResourceId());
+        vtagNode.put("tag", vtag.getTag());
+        dependentVtags.add(vtagNode);
+
         ObjectNode costTypeNode = (ObjectNode)metaNode.with("cost-type");
         costTypeNode.put("cost-metric", "routingcost");
         costTypeNode.put("cost-mode", mode);
@@ -77,6 +87,14 @@ public class CostMapDecoderTest {
         assertNotNull(dcm);
 
         assertEquals(meta.get("cost-type"), costType);
+
+        assertNotNull(meta.get("dependent-vtags"));
+
+        Collection<ResourceTag> vtags = (Collection<ResourceTag>)meta.get("dependent-vtags");
+        assertEquals(vtags.size(), 1);
+        Object lhs[] = vtags.toArray();
+        Object rhs[] = { vtag };
+        assertTrue(Arrays.deepEquals(lhs, rhs));
 
         Map<String, Object> costs;
 

@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ import org.openalto.alto.common.type.ALTOData;
 import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
+import org.openalto.alto.common.type.ResourceTag;
 import org.openalto.alto.common.decoder.basic.DefaultNetworkMap;
 import org.openalto.alto.common.decoder.basic.DefaultCostMap;
 import org.openalto.alto.common.decoder.basic.DefaultEndpointCostResult;
@@ -182,7 +184,15 @@ public class Main {
         if (!isValidesponse(response))
             return;
 
-        ALTOData<?, DefaultNetworkMap> nm = (ALTOData<?, DefaultNetworkMap>)response.get();
+        ALTOData<MetaData, DefaultNetworkMap> nm;
+        nm = (ALTOData<MetaData, DefaultNetworkMap>)response.get();
+
+        MetaData meta = nm.getMeta();
+        ResourceTag vtag = (ResourceTag)meta.get("vtag");
+
+        System.out.println("Resource ID: " + vtag.getResourceId());
+        System.out.println("Tag:         " + vtag.getTag());
+
         Map<String, Set<EndpointAddress<?>>> nodes = nm.getData().getNodes();
         for (Map.Entry<String, Set<EndpointAddress<?>>> entry: nodes.entrySet()) {
             String pid = entry.getKey();
@@ -214,7 +224,23 @@ public class Main {
         if (!isValidesponse(response))
             return;
 
-        ALTOData<?, DefaultCostMap> cm = (ALTOData<?, DefaultCostMap>)response.get();
+        ALTOData<MetaData, DefaultCostMap> cm;
+        cm = (ALTOData<MetaData, DefaultCostMap>)response.get();
+
+        MetaData meta = cm.getMeta();
+
+        Collection<ResourceTag> dependentVtags;
+        dependentVtags = (Collection<ResourceTag>)meta.get("dependent-vtags");
+        System.out.println("Depends:");
+        for (ResourceTag vtag: dependentVtags) {
+            System.out.println("\tResource ID: " + vtag.getResourceId());
+            System.out.println("\tTag:         " + vtag.getTag());
+        }
+
+        CostType resultCostType = (CostType)meta.get("cost-type");
+        System.out.println("Mode:   " + resultCostType.getMode());
+        System.out.println("Metric: " + resultCostType.getMetric());
+
         DefaultCostMap costMap = cm.getData();
 
         for (Map.Entry<?, Map<String, Object>> entry: costMap.getCostMatrix().entrySet()) {
@@ -255,7 +281,23 @@ public class Main {
         if (!isValidesponse(response))
             return;
 
-        ALTOData<?, DefaultCostMap> cm = (ALTOData<?, DefaultCostMap>)response.get();
+        ALTOData<MetaData, DefaultCostMap> cm;
+        cm = (ALTOData<MetaData, DefaultCostMap>)response.get();
+
+        MetaData meta = cm.getMeta();
+
+        Collection<ResourceTag> dependentVtags;
+        dependentVtags = (Collection<ResourceTag>)meta.get("dependent-vtags");
+        System.out.println("Depends:");
+        for (ResourceTag vtag: dependentVtags) {
+            System.out.println("\tResource ID: " + vtag.getResourceId());
+            System.out.println("\tTag:         " + vtag.getTag());
+        }
+
+        CostType resultCostType = (CostType)meta.get("cost-type");
+        System.out.println("Mode:   " + resultCostType.getMode());
+        System.out.println("Metric: " + resultCostType.getMetric());
+
         DefaultCostMap costMap = cm.getData();
 
         for (Map.Entry<?, Map<String, Object>> entry: costMap.getCostMatrix().entrySet()) {
@@ -270,7 +312,6 @@ public class Main {
             }
         }
     }
-
 
     public static void testFNM() throws IOException, URISyntaxException {
         URI uri = new URI("http://localhost:3400/alto/test_fnmlite");
@@ -298,7 +339,15 @@ public class Main {
         if (!isValidesponse(response))
             return;
 
-        ALTOData<?, DefaultNetworkMap> nm = (ALTOData<?, DefaultNetworkMap>)response.get();
+        ALTOData<MetaData, DefaultNetworkMap> nm;
+        nm = (ALTOData<MetaData, DefaultNetworkMap>)response.get();
+
+        MetaData meta = nm.getMeta();
+        ResourceTag vtag = (ResourceTag)meta.get("vtag");
+
+        System.out.println("Resource ID: " + vtag.getResourceId());
+        System.out.println("Tag:         " + vtag.getTag());
+
         Map<String, Set<EndpointAddress<?>>> nodes = nm.getData().getNodes();
         for (Map.Entry<String, Set<EndpointAddress<?>>> entry: nodes.entrySet()) {
             String pid = entry.getKey();
@@ -312,7 +361,6 @@ public class Main {
             System.out.println("------------------");
         }
     }
-
 
     public static void testECS() throws Exception {
         URI uri = new URI("http://localhost:3400/alto/test_ecslite");

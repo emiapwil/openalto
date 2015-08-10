@@ -24,8 +24,10 @@ public class DefaultNetworkMapDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, DefaultNetworkMap>> {
 
     public static final String CATEGORY_ADDR = "addr";
+    public static final String CATEGORY_META = "meta";
 
     public DefaultNetworkMapDecoder() {
+        this.add(CATEGORY_META, "vtag", new ResourceTagDecoder());
         this.add(CATEGORY_ADDR, "ipv4",
                  new InetSubnetDecoder("ipv4", 32, Inet4Address.class));
         this.add(CATEGORY_ADDR, "ipv6",
@@ -46,13 +48,43 @@ public class DefaultNetworkMapDecoder
     @Override
     public ALTOData<MetaData, DefaultNetworkMap> decode(JsonNode node) {
         try {
+            MetaData metaData = this.decodeMetaData(node.get("meta"));
             DefaultNetworkMap map = this.decodeMap(node.get("network-map"));
             if (map != null) {
-                return new ALTOData<MetaData, DefaultNetworkMap>(null, map);
+                return new ALTOData<MetaData, DefaultNetworkMap>(metaData, map);
             }
         } catch (Exception e) {
         }
         return null;
+    }
+
+    public MetaData decodeMetaData(JsonNode node) {
+        if ((node == null) || (!node.isObject()))
+            return null;
+        ObjectNode metaNode = (ObjectNode)node;
+        MetaData meta = new MetaData();
+
+        Iterator<Map.Entry<String, JsonNode>> itr;
+        for (itr = metaNode.fields(); itr.hasNext(); ) {
+            Map.Entry<String, JsonNode> entry = itr.next();
+            String field = entry.getKey();
+            JsonNode target = entry.getValue();
+
+            ALTODecoder<?> decoder = this.get(CATEGORY_META, field);
+            if (decoder == null) {
+                meta.put(field, target.toString());
+                continue;
+            }
+
+            Object decoded = decoder.decode(target);
+            if (decoded == null) {
+                continue;
+            }
+
+            meta.put(field, decoded);
+        }
+
+        return meta;
     }
 
     public DefaultNetworkMap decodeMap(JsonNode mapNode) {

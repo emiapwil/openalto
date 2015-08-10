@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.openalto.alto.common.type.ALTOData;
 import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.type.EndpointAddress;
+import org.openalto.alto.common.type.ResourceTag;
 
 public class NetworkMapDecoderTest {
 
@@ -25,6 +26,11 @@ public class NetworkMapDecoderTest {
     public void testDecode() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode map = mapper.readTree("{}");
+
+        ResourceTag vtag = new ResourceTag("hello-world-map", "17793de59d3d4e98ad6f08f98273c241");
+        ObjectNode vtagNode = (ObjectNode)map.with("meta").with("vtag");
+        vtagNode.put("resource-id", vtag.getResourceId());
+        vtagNode.put("tag", vtag.getTag());
 
         ArrayNode array;
         array = (ArrayNode)map.with("network-map").with("PID1").withArray("ipv4");
@@ -55,6 +61,12 @@ public class NetworkMapDecoderTest {
         DefaultNetworkMapDecoder decoder = new DefaultNetworkMapDecoder();
         ALTOData<MetaData, DefaultNetworkMap> data = decoder.decode(map.toString());
         assertNotNull(data);
+
+        MetaData meta = data.getMeta();
+        assertNotNull(meta);
+
+        assertEquals(meta.get("vtag"), vtag);
+
         DefaultNetworkMap nm = data.getData();
         assertNotNull(nm);
 
@@ -73,5 +85,7 @@ public class NetworkMapDecoderTest {
         for (Object addr: addrList2) {
             assertTrue(node.contains(addr));
         }
+
+        System.out.println(map.toString());
     }
 }

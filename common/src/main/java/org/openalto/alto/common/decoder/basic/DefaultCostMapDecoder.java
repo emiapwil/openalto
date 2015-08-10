@@ -1,5 +1,8 @@
 package org.openalto.alto.common.decoder.basic;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,13 +11,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.openalto.alto.common.type.ALTOData;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.MetaData;
+import org.openalto.alto.common.type.ResourceTag;
 
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
 
 public class DefaultCostMapDecoder
-        extends ALTOChainDecoder<ALTOData<MetaData, DefaultCostMap>>{
+        implements ALTODecoder<ALTOData<MetaData, DefaultCostMap>> {
 
     private CostResultDecoder<String>
     m_decoder = new CostResultDecoder<String>("cost-map") {
@@ -33,6 +37,21 @@ public class DefaultCostMapDecoder
     };
 
     public DefaultCostMapDecoder() {
+        ResourceTagDecoder rtd = new ResourceTagDecoder();
+        CollectionDecoder.CollectionCreator<ResourceTag> creator;
+        creator = new CollectionDecoder.CollectionCreator<ResourceTag>() {
+            @Override
+            public Collection<ResourceTag> create() {
+                return new HashSet<ResourceTag>();
+            }
+        };
+
+        CollectionDecoder<ResourceTag> colDecoder;
+        colDecoder = new CollectionDecoder<ResourceTag>(rtd, creator);
+
+        m_decoder.add(CostResultDecoder.CATEGORY_META,
+                      "dependent-vtags", colDecoder);
+
     }
 
     @Override
