@@ -1,5 +1,7 @@
 package org.openalto.alto.common.standard;
 
+import org.openalto.alto.common.resource.ResourceTypeMapper;
+
 public class RFC7285 {
 
     public static final String COST_MODE = "cost-mode";
@@ -67,4 +69,8 @@ public class RFC7285 {
     public static final String PARAM_PROPERTIES = "properties";
 
     public static final String PARAM_ADDR_TYPES = "address-types";
+
+    public static ResourceTypeMapper getResourceTypeMapper() {
+        return ResourceTypeMapper.getRFC7285Mapper();
+    }
 }
