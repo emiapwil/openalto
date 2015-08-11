@@ -34,6 +34,8 @@ public class RFC7285 {
 
     public static final String CAPABILITY_COST_TYPE = "cost-type";
 
+    public static final String CAPABILITY_PROP_TYPE = "prop-type";
+
     public static final String CAPABILITY_COST_TYPE_NAMES = "cost-type-names";
 
     public static final String CAPABILITY_PROP_TYPES = "prop-types";

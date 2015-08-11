@@ -46,6 +46,9 @@ public class DefaultIRDDecoder
         this.add(CATEGORY_CAPABILITY, RFC7285.CAPABILITY_COST_TYPE_NAMES,
                  ccDecoder.capabilityDecoder());
 
+        this.add(CATEGORY_CAPABILITY, RFC7285.CAPABILITY_PROP_TYPES,
+                 new PropCapabilityDecoder());
+
         this.add(CATEGORY_RESOURCE, RFC7285.USES, new ALTODecoder<Set<String>>() {
             @Override
             public Set<String> decode(String text) {
