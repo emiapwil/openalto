@@ -9,10 +9,12 @@ import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class DefaultCostMapFilterEncoder
         extends CostFilterEncoder<String> {
 
     public DefaultCostMapFilterEncoder() {
-        super("pids");
+        super(RFC7285.PARAM_PIDS);
     }
 }

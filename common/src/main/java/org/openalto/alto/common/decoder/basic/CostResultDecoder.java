@@ -19,6 +19,7 @@ import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
 
 public abstract class CostResultDecoder<T>
         extends ALTOChainDecoder<ALTOData<MetaData, CostResult<T>>>{
@@ -32,9 +33,9 @@ public abstract class CostResultDecoder<T>
     public CostResultDecoder(String dataFieldName) {
         m_dataFieldName = dataFieldName;
 
-        this.add(CATEGORY_COST, "ordinal", new OrdinalCostDecoder());
-        this.add(CATEGORY_COST, "numerical", new NumericalCostDecoder());
-        this.add(CATEGORY_META, "cost-type", new CostTypeDecoder());
+        this.add(CATEGORY_COST, RFC7285.COST_MODE_ORDINAL, new OrdinalCostDecoder());
+        this.add(CATEGORY_COST, RFC7285.COST_MODE_NUMERICAL, new NumericalCostDecoder());
+        this.add(CATEGORY_META, RFC7285.META_FIELD_COST_TYPE, new CostTypeDecoder());
     }
 
     @Override
@@ -56,8 +57,8 @@ public abstract class CostResultDecoder<T>
         try {
             ObjectNode data = (ObjectNode)node;
 
-            MetaData meta = decodeMetaData(data.get("meta"));
-            CostType costType = (CostType)meta.get("cost-type");
+            MetaData meta = decodeMetaData(data.get(RFC7285.META_FIELD));
+            CostType costType = (CostType)meta.get(RFC7285.META_FIELD_COST_TYPE);
             if (costType == null)
                 return null;
 

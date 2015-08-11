@@ -16,12 +16,13 @@ import org.openalto.alto.common.type.ResourceTag;
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
 
 public class DefaultCostMapDecoder
         implements ALTODecoder<ALTOData<MetaData, DefaultCostMap>> {
 
     private CostResultDecoder<String>
-    m_decoder = new CostResultDecoder<String>("cost-map") {
+    m_decoder = new CostResultDecoder<String>(RFC7285.COST_MAP_FIELD) {
 
         @Override
         public String decodeAddress(String addr) {
@@ -50,7 +51,7 @@ public class DefaultCostMapDecoder
         colDecoder = new CollectionDecoder<ResourceTag>(rtd, creator);
 
         m_decoder.add(CostResultDecoder.CATEGORY_META,
-                      "dependent-vtags", colDecoder);
+                      RFC7285.META_FIELD_DEPENDENT_VTAGS, colDecoder);
 
     }
 

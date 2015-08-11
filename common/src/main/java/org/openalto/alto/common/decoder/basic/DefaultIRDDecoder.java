@@ -27,6 +27,8 @@ import org.openalto.alto.common.resource.ResourceTypeMapper;
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class DefaultIRDDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, List<ResourceEntry>>> {
 
@@ -39,9 +41,12 @@ public class DefaultIRDDecoder
 
     public DefaultIRDDecoder() {
         CostCapabilityDecoder ccDecoder = new CostCapabilityDecoder();
-        this.add(CATEGORY_META, "cost-types", ccDecoder.metaDecoder());
-        this.add(CATEGORY_CAPABILITY, "cost-type-names", ccDecoder.capabilityDecoder());
-        this.add(CATEGORY_RESOURCE, "uses", new ALTODecoder<Set<String>>() {
+        this.add(CATEGORY_META, RFC7285.META_FIELD_COST_TYPES,
+                 ccDecoder.metaDecoder());
+        this.add(CATEGORY_CAPABILITY, RFC7285.CAPABILITY_COST_TYPE_NAMES,
+                 ccDecoder.capabilityDecoder());
+
+        this.add(CATEGORY_RESOURCE, RFC7285.USES, new ALTODecoder<Set<String>>() {
             @Override
             public Set<String> decode(String text) {
                 try {
@@ -83,8 +88,8 @@ public class DefaultIRDDecoder
     @Override
     public ALTOData<MetaData, List<ResourceEntry>> decode(JsonNode node) {
         try {
-            MetaData meta = this.decodeMetaData(node.get("meta"));
-            List<ResourceEntry> resources = this.decodeResources(node.get("resources"));
+            MetaData meta = this.decodeMetaData(node.get(RFC7285.META_FIELD));
+            List<ResourceEntry> resources = this.decodeResources(node.get(RFC7285.IRD_FIELD));
             if (resources != null)
                 return new ALTOData<MetaData, List<ResourceEntry>>(meta, resources);
         } catch (Exception e) {

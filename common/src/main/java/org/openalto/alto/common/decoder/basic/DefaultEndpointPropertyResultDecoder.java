@@ -22,6 +22,8 @@ import org.openalto.alto.common.type.ResourceTag;
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class DefaultEndpointPropertyResultDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, DefaultEndpointPropertyResult>> {
 
@@ -42,7 +44,7 @@ public class DefaultEndpointPropertyResultDecoder
         CollectionDecoder<ResourceTag> colDecoder;
         colDecoder = new CollectionDecoder<ResourceTag>(rtd, creator);
 
-        this.add(CATEGORY_META, "dependent-vtags", colDecoder);
+        this.add(CATEGORY_META, RFC7285.META_FIELD_DEPENDENT_VTAGS, colDecoder);
 
         this.add(CATEGORY_ADDR, "ipv4",
                  new InetAddressDecoder("ipv4", Inet4Address.class));

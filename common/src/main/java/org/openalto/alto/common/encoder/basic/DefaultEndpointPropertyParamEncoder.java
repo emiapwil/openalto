@@ -11,7 +11,12 @@ import org.openalto.alto.common.type.EndpointAddress;
 
 import org.openalto.alto.common.encoder.ALTOEncoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class DefaultEndpointPropertyParamEncoder implements ALTOEncoder {
+
+    public static final String ENDPOINTS = RFC7285.PARAM_ENDPOINTS;
+    public static final String PROPERTIES = RFC7285.PARAM_PROPERTIES;
 
     @Override
     public boolean canEncode(Object obj) {
@@ -52,7 +57,7 @@ public class DefaultEndpointPropertyParamEncoder implements ALTOEncoder {
             if ((endpoints == null) || (endpoints.size() == 0)) {
                 return null;
             }
-            ArrayNode endpointsNode = (ArrayNode)node.withArray("endpoints");
+            ArrayNode endpointsNode = (ArrayNode)node.withArray(ENDPOINTS);
             for (EndpointAddress<?> endpoint: endpoints) {
                 endpointsNode.add(endpoint.toString());
             }
@@ -62,7 +67,7 @@ public class DefaultEndpointPropertyParamEncoder implements ALTOEncoder {
             if ((properties == null) || (properties.size() == 0)) {
                 return node;
             }
-            ArrayNode propertiesNode = (ArrayNode)node.withArray("properties");
+            ArrayNode propertiesNode = (ArrayNode)node.withArray(PROPERTIES);
             for (String property: properties) {
                 propertiesNode.add(property);
             }

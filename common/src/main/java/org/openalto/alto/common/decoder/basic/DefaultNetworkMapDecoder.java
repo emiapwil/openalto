@@ -20,18 +20,30 @@ import org.openalto.alto.common.type.EndpointAddress;
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class DefaultNetworkMapDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, DefaultNetworkMap>> {
 
     public static final String CATEGORY_ADDR = "addr";
     public static final String CATEGORY_META = "meta";
 
+    public static final int IPV4_MAX_BITS = 32;
+
+    public static final int IPV6_MAX_BITS = 128;
+
     public DefaultNetworkMapDecoder() {
-        this.add(CATEGORY_META, "vtag", new ResourceTagDecoder());
-        this.add(CATEGORY_ADDR, "ipv4",
-                 new InetSubnetDecoder("ipv4", 32, Inet4Address.class));
-        this.add(CATEGORY_ADDR, "ipv6",
-                 new InetSubnetDecoder("ipv6", 128, Inet6Address.class));
+        this.add(CATEGORY_META, RFC7285.META_FIELD_VTAG, new ResourceTagDecoder());
+
+        ALTODecoder<?> ipv4Decoder;
+        ipv4Decoder = new InetSubnetDecoder(RFC7285.ADDR_FAMILY_IPV4,
+                                            IPV4_MAX_BITS, Inet4Address.class);
+        this.add(CATEGORY_ADDR, RFC7285.ADDR_FAMILY_IPV4, ipv4Decoder);
+
+        ALTODecoder<?> ipv6Decoder;
+        ipv6Decoder = new InetSubnetDecoder(RFC7285.ADDR_FAMILY_IPV6,
+                                            IPV6_MAX_BITS, Inet6Address.class);
+        this.add(CATEGORY_ADDR, RFC7285.ADDR_FAMILY_IPV6, ipv6Decoder);
     }
 
     @Override
@@ -48,11 +60,15 @@ public class DefaultNetworkMapDecoder
     @Override
     public ALTOData<MetaData, DefaultNetworkMap> decode(JsonNode node) {
         try {
-            MetaData metaData = this.decodeMetaData(node.get("meta"));
-            DefaultNetworkMap map = this.decodeMap(node.get("network-map"));
-            if (map != null) {
-                return new ALTOData<MetaData, DefaultNetworkMap>(metaData, map);
-            }
+            MetaData metaData;
+            metaData = this.decodeMetaData(node.get(RFC7285.META_FIELD));
+
+            DefaultNetworkMap map;
+            map = this.decodeMap(node.get(RFC7285.NETWORK_MAP_FIELD));
+            if (map == null)
+                return null;
+
+            return new ALTOData<MetaData, DefaultNetworkMap>(metaData, map);
         } catch (Exception e) {
         }
         return null;

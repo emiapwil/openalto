@@ -9,10 +9,12 @@ import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.EndpointAddress;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class DefaultEndpointCostParamEncoder
         extends CostFilterEncoder<EndpointAddress<?>> {
 
     public DefaultEndpointCostParamEncoder() {
-        super("endpoints");
+        super(RFC7285.PARAM_ENDPOINTS);
     }
 }

@@ -6,7 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openalto.alto.common.type.ResourceTag;
 import org.openalto.alto.common.decoder.ALTODecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class ResourceTagDecoder implements ALTODecoder<ResourceTag> {
+
+    public static final String RESOURCE_ID = RFC7285.VTAG_RESOURCE_ID;
+    public static final String TAG = RFC7285.VTAG_TAG;
 
     @Override
     public ResourceTag decode(String text) {
@@ -21,8 +26,8 @@ public class ResourceTagDecoder implements ALTODecoder<ResourceTag> {
     @Override
     public ResourceTag decode(JsonNode node) {
         try {
-            String resourceId = node.get("resource-id").asText();
-            String tag = node.get("tag").asText();
+            String resourceId = node.get(RESOURCE_ID).asText();
+            String tag = node.get(TAG).asText();
             return new ResourceTag(resourceId, tag);
         } catch (Exception e) {
         }

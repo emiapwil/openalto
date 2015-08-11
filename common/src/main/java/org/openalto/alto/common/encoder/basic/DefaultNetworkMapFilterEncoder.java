@@ -9,7 +9,12 @@ import java.util.Collection;
 
 import org.openalto.alto.common.encoder.ALTOEncoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class DefaultNetworkMapFilterEncoder implements ALTOEncoder {
+
+    public static final String PIDS = RFC7285.PARAM_PIDS;
+    public static final String ADDRESS_TYPES = RFC7285.PARAM_ADDR_TYPES;
 
     @Override
     public boolean canEncode(Object obj) {
@@ -49,7 +54,7 @@ public class DefaultNetworkMapFilterEncoder implements ALTOEncoder {
             if (pidNames == null) {
                 return null;
             }
-            ArrayNode pidsNode = (ArrayNode)node.withArray("pids");
+            ArrayNode pidsNode = (ArrayNode)node.withArray(PIDS);
             for (String pid: pidNames) {
                 pidsNode.add(pid);
             }
@@ -59,7 +64,7 @@ public class DefaultNetworkMapFilterEncoder implements ALTOEncoder {
             if ((addrTypes == null) || (addrTypes.size() == 0)) {
                 return node;
             }
-            ArrayNode typesNode = (ArrayNode)node.withArray("address-types");
+            ArrayNode typesNode = (ArrayNode)node.withArray(ADDRESS_TYPES);
             for (String addrType: addrTypes) {
                 typesNode.add(addrType);
             }

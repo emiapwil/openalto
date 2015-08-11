@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.decoder.ALTODecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 public class CostTypeDecoder implements ALTODecoder<CostType> {
 
     @Override
@@ -21,8 +23,8 @@ public class CostTypeDecoder implements ALTODecoder<CostType> {
     @Override
     public CostType decode(JsonNode node) {
         try {
-            String costMode = node.get("cost-mode").asText();
-            String costMetric = node.get("cost-metric").asText();
+            String costMode = node.get(RFC7285.COST_MODE).asText();
+            String costMetric = node.get(RFC7285.COST_METRIC).asText();
             return new CostType(costMode, costMetric);
         } catch (Exception e) {
         }

@@ -16,6 +16,8 @@ import org.openalto.alto.common.type.CostType;
 
 import org.openalto.alto.common.decoder.ALTODecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
+
 /*
  * NOT THREAD-SAFE!!!
  * */
@@ -75,11 +77,11 @@ public class CostCapabilityDecoder {
                 String costTypeName = entry.getKey();
                 ObjectNode costTypeNode = (ObjectNode)entry.getValue();
 
-                String mode = costTypeNode.get("cost-mode").asText();
-                String metric = costTypeNode.get("cost-metric").asText();
+                String mode = costTypeNode.get(RFC7285.COST_MODE).asText();
+                String metric = costTypeNode.get(RFC7285.COST_METRIC).asText();
                 String desc = "";
-                if (costTypeNode.has("description"))
-                    desc = costTypeNode.get("description").asText();
+                if (costTypeNode.has(RFC7285.DESCRIPTION))
+                    desc = costTypeNode.get(RFC7285.DESCRIPTION).asText();
 
                 CostType costType = new CostType(mode, metric, desc);
 
@@ -108,7 +110,7 @@ public class CostCapabilityDecoder {
                     continue;
 
                 Capability<CostType> capability;
-                capability = new Capability<CostType>("cost-type", type);
+                capability = new Capability<CostType>(RFC7285.CAPABILITY_COST_TYPE, type);
 
                 capabilities.add(capability);
             } catch (Exception e) {

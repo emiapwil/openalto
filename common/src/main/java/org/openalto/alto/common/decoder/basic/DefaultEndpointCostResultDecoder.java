@@ -20,12 +20,13 @@ import org.openalto.alto.common.type.EndpointAddress;
 import org.openalto.alto.common.decoder.ALTODecoder;
 import org.openalto.alto.common.decoder.ALTOChainDecoder;
 
+import org.openalto.alto.common.standard.RFC7285;
 
 public class DefaultEndpointCostResultDecoder
         extends ALTOChainDecoder<ALTOData<MetaData, DefaultEndpointCostResult>>{
 
     private CostResultDecoder<EndpointAddress<?>>
-    m_decoder = new CostResultDecoder<EndpointAddress<?>>("endpoint-cost-map") {
+    m_decoder = new CostResultDecoder<EndpointAddress<?>>(RFC7285.ENDPOINT_COST_FIELD) {
 
         @Override
         public EndpointAddress<?> decodeAddress(String compact) {
