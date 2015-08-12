@@ -1,7 +1,6 @@
 package org.openalto.alto.common.encoder.basic;
 
 import java.net.InetAddress;
-import java.util.Arrays;
 
 import org.openalto.alto.common.type.EndpointAddress;
 

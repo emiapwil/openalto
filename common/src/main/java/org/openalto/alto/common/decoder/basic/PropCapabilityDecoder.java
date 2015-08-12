@@ -1,15 +1,12 @@
 package org.openalto.alto.common.decoder.basic;
 
 import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.openalto.alto.common.type.Capability;
 

@@ -1,15 +1,10 @@
 package org.openalto.alto.client.wrapper;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-
-import javax.ws.rs.core.MediaType;
 
 import org.openalto.alto.common.encoder.ALTOEncoder;
 import org.openalto.alto.common.resource.ResourceEntry;
 import org.openalto.alto.common.resource.ResourceType;
-import org.openalto.alto.common.resource.ResourceTypeMapper;
 
 import org.openalto.alto.client.ALTORequest;
 import org.openalto.alto.client.ALTOResponseParser;

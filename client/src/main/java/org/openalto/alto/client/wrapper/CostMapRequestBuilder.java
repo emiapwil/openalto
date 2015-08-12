@@ -1,7 +1,6 @@
 package org.openalto.alto.client.wrapper;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
 
 import org.openalto.alto.common.resource.ResourceEntry;
 import org.openalto.alto.common.resource.ResourceType;

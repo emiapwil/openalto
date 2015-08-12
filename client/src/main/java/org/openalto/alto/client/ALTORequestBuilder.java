@@ -5,11 +5,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import static org.openalto.alto.client.ALTOResponseParser.ALTOResponseBase;
-import org.openalto.alto.common.resource.ResourceMethodMapper;
-import org.openalto.alto.common.resource.ResourceTypeMapper;
 import org.openalto.alto.common.resource.ResourceEntry;
 import org.openalto.alto.common.resource.ResourceType;
 import org.openalto.alto.common.resource.ResourceTypeMapper;

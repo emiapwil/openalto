@@ -47,7 +47,6 @@ import org.openalto.alto.client.ALTORequestBuilder;
 import org.openalto.alto.client.ALTOResponse;
 import org.openalto.alto.client.ALTOResponseParser;
 
-import org.openalto.alto.client.wrapper.RawParser;
 import org.openalto.alto.client.wrapper.IRDRequestBuilder;
 import org.openalto.alto.client.wrapper.IRDResponseParser;
 import org.openalto.alto.client.wrapper.CostMapRequestBuilder;

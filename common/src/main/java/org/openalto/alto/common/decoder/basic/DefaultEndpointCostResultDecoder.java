@@ -3,17 +3,10 @@ package org.openalto.alto.common.decoder.basic;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.openalto.alto.common.type.ALTOData;
-import org.openalto.alto.common.type.CostType;
 import org.openalto.alto.common.type.MetaData;
 import org.openalto.alto.common.type.EndpointAddress;
 

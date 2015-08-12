@@ -1,10 +1,6 @@
 package org.openalto.alto.client.wrapper;
 
-import java.io.IOException;
-
 import java.util.List;
-
-import org.openalto.alto.client.ALTOResponseParser;
 
 import org.openalto.alto.common.resource.ResourceEntry;
 
